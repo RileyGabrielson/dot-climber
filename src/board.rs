@@ -5,7 +5,7 @@ use std::collections::HashMap;
 pub use self::border::Border;
 use self::point::{Point, PointConnections};
 
-
+// test
 
 #[derive(Debug)]
 pub struct Board {
