@@ -24,9 +24,9 @@ pub fn get_user_move(cur_position: &Point, options: Vec<Point>) -> Point {
 fn get_point_label(cur_position: &Point, option: &Point) -> String {
     match cur_position.x.cmp(&option.x) {
         Ordering::Less => match cur_position.y.cmp(&option.y) {
-            Ordering::Less => String::from(""),
-            Ordering::Equal => String::from(""),
-            Ordering::Greater => String::from(""),
+            Ordering::Less => String::from("Top Right"),
+            Ordering::Equal => String::from("Right"),
+            Ordering::Greater => String::from("Bottom Right"),
         },
         Ordering::Equal => match cur_position.y.cmp(&option.y) {
             Ordering::Less => String::from("Up"),
@@ -34,9 +34,9 @@ fn get_point_label(cur_position: &Point, option: &Point) -> String {
             Ordering::Greater => String::from("Down"),
         }
         Ordering::Greater => match cur_position.y.cmp(&option.y) {
-            Ordering::Less => String::from(""),
-            Ordering::Equal => String::from(""),
-            Ordering::Greater => String::from(""),
+            Ordering::Less => String::from("Top Left"),
+            Ordering::Equal => String::from("Left"),
+            Ordering::Greater => String::from("Bottom Left"),
         }
     }
 }

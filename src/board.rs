@@ -3,7 +3,7 @@ pub mod point;
 
 use std::collections::HashMap;
 pub use self::border::Border;
-use self::point::{Point, PointConnections};
+use self::point::{Point, PointRenderData, DiagonalConnection};
 
 // test
 
@@ -69,23 +69,34 @@ impl Board {
 
         for y in self.border.bottom .. self.border.top {
             for x in self.border.left .. self.border.right {
-                let point = Point { x, y };
+                let point = Point { x, y: self.border.top - y };
                 let point_chars = point::get_point_characters(
-                    PointConnections { 
+                    PointRenderData { 
                         right: self.has_right_connection(&point), 
                         bottom: self.has_bottom_connection(&point), 
-                        bottom_right: self.has_bottom_right_connection(&point),
+                        bottom_right: if self.has_bottom_right_connection(&point) {DiagonalConnection::SingleLeft} else {DiagonalConnection::None},
+                        bottom_left: if self.has_bottom_left_connection(&point) {DiagonalConnection::SingleRight} else {DiagonalConnection::None},
                         is_current_position: self.cur_position.x == point.x && self.cur_position.y == point.y,
                     }
                 );
 
+                if self.cur_position.x == point.x && self.cur_position.y == point.y {
+                    println!("{:?}", point_chars);
+                    
+                }
+
                 let row_1 = board_characters.get_mut((y*2) as usize).expect("Board should be initialized with the correct size");
-                row_1.push(point_chars[0][0].clone());
                 row_1.push(point_chars[0][1].clone());
+                row_1.push(point_chars[0][2].clone());
 
                 let row_2 = board_characters.get_mut(((y*2)+1) as usize).expect("Board should be initialized with the correct size");
-                row_2.push(point_chars[1][0].clone());
+                if point_chars[1][0] != "  " {
+                    row_2.pop();
+                    row_2.push(point_chars[1][0].clone());
+                }
                 row_2.push(point_chars[1][1].clone());
+                row_2.push(point_chars[1][2].clone());
+
             }
         }
 
@@ -116,6 +127,13 @@ impl Board {
     fn has_bottom_right_connection(&self, point: &Point) -> bool {
         match self.connections.get(&Board::get_point_key(&point)) {
             Some(connections) => connections.contains(&Point { y: point.y - 1, x: point.x + 1 }),
+            None => false,
+        }
+    }
+
+    fn has_bottom_left_connection(&self, point: &Point) -> bool {
+        match self.connections.get(&Board::get_point_key(&point)) {
+            Some(connections) => connections.contains(&Point { y: point.y - 1, x: point.x - 1 }),
             None => false,
         }
     }
