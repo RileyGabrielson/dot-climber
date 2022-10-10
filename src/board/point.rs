@@ -1,7 +1,14 @@
+
 #[derive(Debug)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
+}
+
+impl Point {
+    pub fn distance_squared_from(&self, other_point: &Point) -> i32 {
+        return (self.x - other_point.x).pow(2) + (self.y - other_point.y).pow(2)
+    }
 }
 
 impl PartialEq for Point {
@@ -30,8 +37,8 @@ impl DiagonalConnection {
        match self {
             DiagonalConnection::None => "  ",
             DiagonalConnection::Crossed => "X ",
-            DiagonalConnection::SingleLeft => "\\ ",
-            DiagonalConnection::SingleRight => "/ ",
+            DiagonalConnection::SingleLeft => "/ ",
+            DiagonalConnection::SingleRight => "\\ ",
        }
     }
 }

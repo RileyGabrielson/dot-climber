@@ -5,7 +5,6 @@ use std::collections::HashMap;
 pub use self::border::Border;
 use self::point::{Point, PointRenderData, DiagonalConnection};
 
-// test
 
 #[derive(Debug)]
 pub struct Board {
@@ -54,6 +53,13 @@ impl Board {
         self.filter_valid_moves(possible)
     }
 
+    pub fn current_has_multiple_connections(&self) -> bool {
+        match self.connections.get(&Board::get_point_key(&self.cur_position)) {
+            Some(connections) => connections.len() > 1,
+            None => false,
+        }
+    }
+
     pub fn get_point_key(point: &Point) -> String {
         let mut key = point.x.to_string();
         key.push_str("-");
@@ -74,8 +80,8 @@ impl Board {
                     PointRenderData { 
                         right: self.has_right_connection(&point), 
                         bottom: self.has_bottom_connection(&point), 
-                        bottom_right: if self.has_bottom_right_connection(&point) {DiagonalConnection::SingleLeft} else {DiagonalConnection::None},
-                        bottom_left: if self.has_bottom_left_connection(&point) {DiagonalConnection::SingleRight} else {DiagonalConnection::None},
+                        bottom_right: self.get_bottom_right_point_render(&point),
+                        bottom_left: self.get_bottom_left_point_render(&point),
                         is_current_position: self.cur_position.x == point.x && self.cur_position.y == point.y,
                     }
                 );
@@ -108,6 +114,34 @@ impl Board {
             board_string.push_str("\n");
         }
         board_string
+    }
+
+    fn get_bottom_right_point_render(&self, point: &Point) -> DiagonalConnection {
+        let right_slash = self.has_bottom_right_connection(point);
+        let left_slash = self.has_bottom_left_connection(&Point {x: point.x + 1, y: point.y});
+        if right_slash && left_slash {
+            DiagonalConnection::Crossed
+        } else if right_slash && !left_slash {
+            DiagonalConnection::SingleRight
+        } else if !right_slash && left_slash {
+            DiagonalConnection::SingleLeft
+        } else {
+            DiagonalConnection::None
+        }
+    }
+
+    fn get_bottom_left_point_render(&self, point: &Point) -> DiagonalConnection {
+        let right_slash = self.has_bottom_right_connection(&Point {x: point.x - 1, y: point.y});
+        let left_slash = self.has_bottom_left_connection(&point);
+        if right_slash && left_slash {
+            DiagonalConnection::Crossed
+        } else if right_slash && !left_slash {
+            DiagonalConnection::SingleRight
+        } else if !right_slash && left_slash {
+            DiagonalConnection::SingleLeft
+        } else {
+            DiagonalConnection::None
+        }
     }
 
     fn has_right_connection(&self, point: &Point) -> bool {
